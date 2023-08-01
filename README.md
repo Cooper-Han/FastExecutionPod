@@ -5,6 +5,7 @@
 如果指定终端类型为 iTerm2 请确保已经安装!
 
 具体使用步骤如下:
+### 先将 FastExecutionPod.sh 下载下来 按照以下步骤操作：
 ## 1.Xcode->Settings...
 <img width="1211" alt="iShot_2023-08-01_17 35 40" src="https://github.com/HKZ773999/FastExecutionPod/assets/16662173/5324cf05-be3d-41f2-bf23-afd56ecaeb96">
 
