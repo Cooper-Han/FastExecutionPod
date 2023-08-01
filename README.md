@@ -11,7 +11,7 @@
 ## 2.Behaviors(最上面 Item 选项)
 <img width="866" alt="iShot_2023-08-01_17 37 28" src="https://github.com/HKZ773999/FastExecutionPod/assets/16662173/8b8e8264-93be-4951-8254-61eb48fe20aa">
 
-## 3.左下角点击 (+) 自己起一个名字(比如:CocoaPods), 然后设置自己的快捷键(这里直接设为：command+p 直接替换掉打印机打印的快捷键)
+## 3.左下角点击 (+) 号
 <img width="866" alt="iShot_2023-08-01_17 38 27" src="https://github.com/HKZ773999/FastExecutionPod/assets/16662173/91ed9f40-b404-4ecb-86b1-a2943473afd1">
 自己起一个名字(比如:PodCommand)
 <img width="866" alt="iShot_2023-08-01_17 39 48" src="https://github.com/HKZ773999/FastExecutionPod/assets/16662173/0749d564-0477-43c0-bc52-20e2c892a419">
