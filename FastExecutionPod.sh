@@ -3,6 +3,7 @@
 # 作者: Cooper
 # 版本: 1.0
 # 创建日期: 2023-02-28
+# github: https://github.com/HKZ773999/FastExecutionPod.git
 # 使用说明: 
 : "
 此脚本通过在 Xcode 配置 快捷键, 快速 执行 pod 等相关操作
@@ -22,7 +23,7 @@
 # ⚠️⚠️⚠️:指定使用终端类型
 # 系统终端:1
 # iTerm2:2
-use_terminal_type=2
+use_terminal_type=1
 
 
 # 自定义弹窗 
