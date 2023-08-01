@@ -20,6 +20,7 @@
 
 ## 4.右边 滑到最下面 在 选中 Run 然后设置自己下载的此脚本存放的位置
 <img width="866" alt="iShot_2023-08-01_17 42 56" src="https://github.com/HKZ773999/FastExecutionPod/assets/16662173/f280eac6-529f-4ebf-86c0-773a9cdaf422">
+这边将次脚本存放在了文稿下自建的 Shell 文件夹中
 <img width="866" alt="iShot_2023-08-01_17 44 19" src="https://github.com/HKZ773999/FastExecutionPod/assets/16662173/4cadf79a-0342-4091-9fd6-dbbfdcdf9710">
 
 ## 5.在自己想要执行 Pod 操作的 Xcode 工程界面执行自己的快捷键（command+p） 即可跳转到终端对当前工程进行快速 pod 相关操作 
