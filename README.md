@@ -1,4 +1,4 @@
-# FastExecutionPod 使用说明
+# FastExecutionPod.sh 使用说明
 通过 Xcode 快捷键 快速执行 Pod install 等基础操作
 此脚本通过在 Xcode 配置 快捷键, 快速 执行 pod 等相关操作
 目前支持在系统终端跟 iTerm 运行, 默认系统终端, 可通过修改 "use_terminal_type" 改变终端类型
@@ -16,7 +16,7 @@
 <img width="866" alt="iShot_2023-08-01_17 39 48" src="https://github.com/HKZ773999/FastExecutionPod/assets/16662173/0749d564-0477-43c0-bc52-20e2c892a419">
 <img width="866" alt="iShot_2023-08-01_17 42 03" src="https://github.com/HKZ773999/FastExecutionPod/assets/16662173/92035bc4-b9d1-4f56-a79e-bea874e1613e">
 
-## 4.右边 滑到最下面 在 选中 Run 然后设置自己存放此脚本的位置
+## 4.右边 滑到最下面 在 选中 Run 然后设置自己下载的此脚本存放的位置
 <img width="866" alt="iShot_2023-08-01_17 42 56" src="https://github.com/HKZ773999/FastExecutionPod/assets/16662173/f280eac6-529f-4ebf-86c0-773a9cdaf422">
 <img width="866" alt="iShot_2023-08-01_17 44 19" src="https://github.com/HKZ773999/FastExecutionPod/assets/16662173/4cadf79a-0342-4091-9fd6-dbbfdcdf9710">
 
