@@ -4,6 +4,9 @@
 目前支持在系统终端跟 iTerm 运行, 默认系统终端, 可通过修改 "use_terminal_type" 改变终端类型
 如果指定终端类型为 iTerm2 请确保已经安装!
 
+![iShot_2023-08-02_13 06 53](https://github.com/HKZ773999/FastExecutionPod/assets/16662173/1b0f28e9-d566-4b79-8e7c-af9be9c065f9)
+
+
 具体使用步骤如下:
 ### 先将 FastExecutionPod.sh 下载下来 按照以下步骤操作：
 ## 1.Xcode->Settings...
