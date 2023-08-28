@@ -26,6 +26,20 @@
 use_terminal_type=1
 
 
+# 手动输入指令的占位符
+input_command_placeholder='pod '
+
+
+: "
+指定变量 input_command_placeholder 在次文件的第几行 当前文件下载下来默认在第 30 行
+
+⚠️⚠️⚠️注意:为了提升性能以及代码安全性,通过手动指定变量 input_command_placeholder 在次文件的第几行
+这样在手动输入指令的时候 可以直接将输入的值获取, 然后通过 sed -i 指令修改此文件的 input_command_placeholder 变量值
+这样下次 input_command_placeholder 占位符就是上次输入的指令
+"
+input_command_placeholder_line_number=30
+
+
 # 自定义弹窗 
 # 参数$1 弹窗消息内容
 # 参数$2 弹窗标题
@@ -216,7 +230,7 @@ if [ -n "$path" ]; then
         # 指定 showAlert 为输入模式 
         # 如果选择执行输出结果为: button returned:执行,text returned:输入内容
         # 如果选择内容为取消输出结果为空
-        button_and_text_result=$(showAlert "请输入自定义指令:" "提示" "取消,执行" "2" "1" "pod " "note")
+        button_and_text_result=$(showAlert "请输入自定义指令:" "提示" "取消,执行" "2" "1" "$input_command_placeholder" "note")
         if [ -z "$button_and_text_result" ]; then
             # 如果选择了 取消 操作则终止
             exit 
@@ -228,8 +242,12 @@ if [ -n "$path" ]; then
 
         # 如果有输入内容
         if [ -n "$text_result" ]; then
+
             # 将输入指令赋值给 pod_command
-            pod_command=$text_result 
+            pod_command=$text_result
+
+            # 注意 ${input_command_placeholder_line_number}表示只在第${input_command_placeholder_line_number}行上执行替换操作。
+            sed -i '' "${input_command_placeholder_line_number}s/input_command_placeholder=.*/input_command_placeholder='${pod_command}'/" "$0"
         else  
             # text_result 为空('') 弹出Alert告知
             showAlert "指令为空无法执行 Cocoapods 相关操作" "提示" "知道了" "1" "0" "占位" "stop"  
