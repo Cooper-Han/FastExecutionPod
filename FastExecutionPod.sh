@@ -95,7 +95,8 @@ function choosList()
 osascript  <<EOF
     tell application "Xcode"
         set podOptions to {"pod install", "pod update", "pod update --no-repo-update"}
-        choose from list podOptions with title "$1" with prompt "选择要执行的 Pod 操作: " OK button name "执行" cancel button name "取消" default items {"pod update --no-repo-update"}
+        set defaultItems to {"pod update --no-repo-update"}
+        choose from list podOptions with title "$1" with prompt "选择要执行的 Pod 操作: " OK button name "执行" cancel button name "取消" default items defaultItems
     end tell
 EOF
 }
