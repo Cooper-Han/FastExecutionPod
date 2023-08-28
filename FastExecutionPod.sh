@@ -34,48 +34,51 @@ use_terminal_type=1
 # 参数$5 是否为输入框类型 传"0"或者"1" 默认"0"
 # 参数$6 输入框默认占位内容,传不传无所谓,默认为空字符串 ""
 # 参数$7 默认图标note/stop/caution 或者自定义文件路径(:格式路径可以通过choose file获取)  
+#        note：信息图标（i）
+#        stop：停止图标（红色圆形带白色横线）
+#        caution：小心图标（黄色三角形感叹号）
 # tips: 如果为输入框模式,那么输出结果就是{button returned:button,text returned:text} 否则只有按钮或者false 
 function showAlert()
 {
     if [[ -n "$4" ]]; then
         if [[ ${4} == *[!0-9]* ]]; then
-            defaultButton="default button \"${4}\""
-            else
-            defaultButton="default button ${4}"
+            default_button="default button \"${4}\""
+        else
+            default_button="default button ${4}"
         fi
     else
-        defaultButton=""
+        default_button=""
     fi
 
     # 是否为输入框模式
     if [[ "$5" = "1" ]]; then
-        IS_InputMode="default answer \"${6}\""
-        ReturnValue="get result"
+        is_inputMode="default answer \"${6}\""
+        return_value="get result"
     else
-        IS_InputMode=""
-        ReturnValue="get the button returned of the result"
+        is_inputMode=""
+        return_value="get the button returned of the result"
     fi
 
     if [[ -n "$7" ]]; then
         case ${7} in
             note)
-            ICON="with icon note"
+            icon="with icon note"
             ;;
             stop)
-            ICON="with icon stop"
+            icon="with icon stop"
             ;;
             caution)
-            ICON="with icon caution"
+            icon="with icon caution"
             ;;
             *)
-            ICON="with icon file \"${7}\""
+            icon="with icon file \"${7}\""
             ;;
         esac
     else
-        ICON="with icon file \"Applications:Xcode.app:Contents:Resources:Xcode.icns\""
+        icon="with icon file \"Applications:Xcode.app:Contents:Resources:Xcode.icns\""
     fi
 
-osascript  <<EOF
+osascript <<EOF
     set buttonStr to "${3}"
     set oldDelimiters to AppleScript's text item delimiters
     set AppleScript's text item delimiters to ","
@@ -83,7 +86,8 @@ osascript  <<EOF
     set AppleScript's text item delimiters to oldDelimiters
     get buttonList
     set btns to buttonList
-    display dialog "${1}" with title "${2}" buttons btns ${IS_InputMode} ${defaultButton} ${ICON}
+    display dialog "${1}" with title "${2}" buttons btns ${is_inputMode} ${default_button} ${icon}
+    ${return_value}  
 EOF
 }
 
@@ -94,7 +98,7 @@ function choosList()
 {
 osascript  <<EOF
     tell application "Xcode"
-        set podOptions to {"pod install", "pod update", "pod update --no-repo-update"}
+        set podOptions to {"输入Pod指令", "pod install", "pod update", "pod update --no-repo-update"}
         set defaultItems to {"pod update --no-repo-update"}
         choose from list podOptions with title "$1" with prompt "选择要执行的 Pod 操作: " OK button name "执行" cancel button name "取消" default items defaultItems
     end tell
@@ -137,6 +141,31 @@ EOF
 }
 
 
+# 在终端运行
+# 参数$1 进入目录
+# 参数$2 执行指令
+function runPodCommand()
+{
+    # 判断指定的终端类型
+    case $use_terminal_type in
+    "1") # 系统终端
+
+        echo "选择了系统终端执行"
+        runInTerminal "$1" "$2"
+        ;;
+    "2") # iTerm2
+
+        echo "选择了 iTerm2 终端执行"
+        runInITerm "$1" "$2"
+        ;;
+    *) # 其它
+        message="指定了不支持的终端类型!"
+        showAlert $message "提示" "知道了" "1" "0" "占位" "stop"
+        ;;
+    esac
+}
+
+
 
 
 # 🔴 <<<<<--------------- 开始执行 --------------->>>>> 🔻
@@ -148,6 +177,22 @@ if [ -n "$XcodeProjectPath" ]; then
 else
     path=$XcodeWorkspacePath    
 fi
+
+
+
+# 如果不存在 Podfile 文件
+if [ ! -f "$path/../Podfile" ]; then
+
+    # 不存在 Podfile 文件 弹出Alert请求创建
+    buttonName=$(showAlert "没有 Podfile 文件是否创建?" "提示" "取消,创建" "2" "0" "占位" "caution")
+    if [ "$buttonName" == '创建' ]; then
+        runPodCommand "$path" "pod init"
+    fi
+
+    # 终止
+    exit
+fi
+
 
 
 # 判断 是否获取到了 Xcode 工程主目录
@@ -167,23 +212,35 @@ if [ -n "$path" ]; then
         exit 
     fi
 
-    # 判断指定的终端类型
-    case $use_terminal_type in
-    "1") # 系统终端
+    # 如果 选择的是 手动输入 操作 
+    if [ $pod_command == '输入Pod指令' ]; then
 
-        echo "选择了系统终端执行"
-        runInTerminal "$path" "$pod_command"
-        ;;
-    "2") # iTerm2
+        # 指定 showAlert 为输入模式 
+        # 如果选择执行输出结果为: button returned:执行,text returned:输入内容
+        # 如果选择内容为取消输出结果为空
+        button_and_text_result=$(showAlert "请输入自定义指令:" "提示" "取消,执行" "2" "1" "pod " "note")
+        if [ -z "$button_and_text_result" ]; then
+            # 如果选择了 取消 操作则终止
+            exit 
+        fi
 
-        echo "选择了 iTerm2 终端执行"
-        runInITerm "$path" "$pod_command"
-        ;;
-    *) # 其它
-        message="指定了不支持的终端类型!"
-        showAlert $message "提示" "知道了" "1" "0" "占位" "stop"
-        ;;
-    esac
+
+        # 通过使用cut命令可以根据指定的分隔符将字符串分割为多个字段，并提取其中的第 3 个字段。也就是输入的内容
+        text_result=$(echo "$button_and_text_result" | cut -d ":" -f 3)
+
+        # 如果有输入内容
+        if [ -n "$text_result" ]; then
+            # 将输入指令赋值给 pod_command
+            pod_command=$text_result 
+        else  
+            # text_result 为空('') 弹出Alert告知
+            showAlert "指令为空无法执行 Cocoapods 相关操作" "提示" "知道了" "1" "0" "占位" "stop"  
+            exit
+        fi
+    fi
+
+    # 执行 pod 指令
+    runPodCommand "$path" "$pod_command"
 else
     # path 为空('') 弹出Alert告知
     showAlert "当前没有打开任何 Xcode 工程无法执行 Cocoapods 相关操作" "提示" "知道了" "1" "0" "占位" "stop"
