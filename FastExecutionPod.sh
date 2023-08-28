@@ -180,29 +180,27 @@ fi
 
 
 
-# 如果不存在 Podfile 文件
-if [ ! -f "$path/../Podfile" ]; then
-
-    # 不存在 Podfile 文件 弹出Alert请求创建
-    buttonName=$(showAlert "没有 Podfile 文件是否创建?" "提示" "取消,创建" "2" "0" "占位" "caution")
-    if [ "$buttonName" == '创建' ]; then
-        runPodCommand "$path" "pod init"
-    fi
-
-    # 终止
-    exit
-fi
-
-
-
 # 判断 是否获取到了 Xcode 工程主目录
 if [ -n "$path" ]; then
+
+    # 如果不存在 Podfile 文件
+    if [ ! -f "$path/../Podfile" ]; then
+
+        # 不存在 Podfile 文件 弹出Alert请求创建
+        buttonName=$(showAlert "没有 Podfile 文件是否创建?" "提示" "取消,创建" "2" "0" "占位" "caution")
+        if [ "$buttonName" == '创建' ]; then
+            runPodCommand "$path" "pod init"
+        fi
+
+        # 终止
+        exit
+    fi
 
     # 从路径截取 工程名(带扩展名) 使用 ## 截取, 直到最后一个指定字符（/）再匹配结束
     full_name=${path##*/}
 
     # 只截取工程名 使用%号截取指定字符（.）左边的所有字符
-     name='📌'${full_name%.*}'📌'
+    name='📌'${full_name%.*}'📌'
 
     # 如果存在弹出 选择器 选择要执行的操作
     pod_command=$(choosList $name)
