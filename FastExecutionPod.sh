@@ -202,6 +202,8 @@ if [ -n "$path" ]; then
 
         # 不存在 Podfile 文件 弹出Alert请求创建
         buttonName=$(showAlert "没有 Podfile 文件是否创建?" "提示" "取消,创建" "2" "0" "占位" "caution")
+
+        # 点击了创建
         if [ "$buttonName" == '创建' ]; then
             runPodCommand "$path" "pod init"
         fi
@@ -227,15 +229,18 @@ if [ -n "$path" ]; then
     # 如果 选择的是 手动输入 操作 
     if [ $pod_command == '输入Pod指令' ]; then
 
+        # 指定 icon path
+        icon_path='System:Applications:Utilities:Terminal.app:Contents:Resources:Terminal.icns'
+
         # 指定 showAlert 为输入模式 
         # 如果选择执行输出结果为: button returned:执行,text returned:输入内容
         # 如果选择内容为取消输出结果为空
-        button_and_text_result=$(showAlert "请输入自定义指令:" "提示" "取消,执行" "2" "1" "$input_command_placeholder" "note")
-        if [ -z "$button_and_text_result" ]; then
-            # 如果选择了 取消 操作则终止
-            exit 
-        fi
+        button_and_text_result=$(showAlert "请输入指令:" "提示" "取消,执行" "2" "1" "$input_command_placeholder" $icon_path)
 
+        # 如果没有输入内容则终止
+        if [ -z "$button_and_text_result" ]; then
+            exit
+        fi
 
         # 通过使用cut命令可以根据指定的分隔符将字符串分割为多个字段，并提取其中的第 3 个字段。也就是输入的内容
         text_result=$(echo "$button_and_text_result" | cut -d ":" -f 3)
