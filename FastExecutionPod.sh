@@ -197,11 +197,18 @@ fi
 # 判断 是否获取到了 Xcode 工程主目录
 if [ -n "$path" ]; then
 
+    # 从路径截取 工程名(带扩展名) 使用 ## 截取, 直到最后一个指定字符（/）再匹配结束
+    full_name=${path##*/}
+
+    # 只截取工程名 使用%号截取指定字符（.）左边的所有字符
+    name="目标:${full_name%.*}"
+
+
     # 如果不存在 Podfile 文件
     if [ ! -f "$path/../Podfile" ]; then
 
         # 不存在 Podfile 文件 弹出Alert请求创建
-        buttonName=$(showAlert "没有 Podfile 文件是否创建?" "提示" "取消,创建" "2" "0" "占位" "caution")
+        buttonName=$(showAlert "没有 Podfile 文件是否创建?" "$name" "取消,创建" "2" "0" "占位" "caution")
 
         # 点击了创建
         if [ "$buttonName" == '创建' ]; then
@@ -212,11 +219,6 @@ if [ -n "$path" ]; then
         exit
     fi
 
-    # 从路径截取 工程名(带扩展名) 使用 ## 截取, 直到最后一个指定字符（/）再匹配结束
-    full_name=${path##*/}
-
-    # 只截取工程名 使用%号截取指定字符（.）左边的所有字符
-    name='📌'${full_name%.*}'📌'
 
     # 如果存在弹出 选择器 选择要执行的操作
     pod_command=$(choosList $name)
@@ -225,6 +227,7 @@ if [ -n "$path" ]; then
         # 如果选择了 取消 操作 直接终止脚本
         exit 
     fi
+
 
     # 如果 选择的是 手动输入 操作 
     if [ $pod_command == '输入Pod指令' ]; then
@@ -235,7 +238,7 @@ if [ -n "$path" ]; then
         # 指定 showAlert 为输入模式 
         # 如果选择执行输出结果为: button returned:执行,text returned:输入内容
         # 如果选择内容为取消输出结果为空
-        button_and_text_result=$(showAlert "请输入指令:" "提示" "取消,执行" "2" "1" "$input_command_placeholder" $icon_path)
+        button_and_text_result=$(showAlert "请输入指令:" "$name" "取消,执行" "2" "1" "$input_command_placeholder" "$icon_path")
 
         # 如果没有输入内容则终止
         if [ -z "$button_and_text_result" ]; then
@@ -255,7 +258,7 @@ if [ -n "$path" ]; then
             sed -i '' "${input_command_placeholder_line_number}s/input_command_placeholder=.*/input_command_placeholder='${pod_command}'/" "$0"
         else  
             # text_result 为空('') 弹出Alert告知
-            showAlert "指令为空无法执行 Cocoapods 相关操作" "提示" "知道了" "1" "0" "占位" "stop"  
+            showAlert "指令为空无法执行!" "提示" "知道了" "1" "0" "占位" "stop"  
             exit
         fi
     fi
