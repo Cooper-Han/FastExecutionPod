@@ -166,6 +166,7 @@ EOF
 }
 
 
+
 # 在终端运行
 # 参数$1 进入目录
 # 参数$2 执行指令
@@ -188,6 +189,36 @@ function runPodCommand()
         showAlert $message "提示" "知道了" "1" "0" "占位" "stop"
         ;;
     esac
+}
+
+
+
+# 关闭指定工程
+# 参数$1 指定的 Xcode工程目录
+function closeProject()
+{
+osascript <<EOF
+    tell application "Xcode"
+
+        -- 获取所有已打开的窗口
+        set openWindows to windows
+        
+        -- 遍历所有已打开的窗口
+        repeat with theWindow in openWindows
+            -- 检查窗口是否有关联的文档
+            if exists document of theWindow then
+                -- 获取文档的文件路径
+                set docPath to (path of document of theWindow) as text
+                
+                -- 检查文档路径是否与指定的路径匹配
+                if docPath is equal to "$1" then
+                    -- 关闭窗口
+                    close theWindow
+                end if
+            end if
+        end repeat
+    end tell
+EOF
 }
 
 
@@ -219,11 +250,16 @@ if [ -n "$path" ]; then
     if [ ! -f "$path/../Podfile" ]; then
 
         # 不存在 Podfile 文件 弹出Alert请求创建
-        buttonName=$(showAlert "没有 Podfile 文件是否创建?" "$name" "取消,创建" "2" "0" "占位" "caution")
+        buttonName=$(showAlert "没有 Podfile 文件是否创建并执行 pod install?" "$name" "取消,确定" "2" "0" "占位" "caution")
 
         # 点击了创建
-        if [ "$buttonName" == '创建' ]; then
-            runPodCommand "$path" "pod init"
+        if [ "$buttonName" == '确定' ]; then
+
+            # 关闭 .xcodeproj
+            closeProject "$path"
+
+            # 执行 pod init && pod install 并打开 .xcworkspace
+            runPodCommand "$path" "pod init && pod install && open '${path%.*}.xcworkspace'"
         fi
 
         # 终止
