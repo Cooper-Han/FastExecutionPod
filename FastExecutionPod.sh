@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # 作者: Cooper
-# 版本: 1.0
+# 版本: 1.1
 # 创建日期: 2023-02-28
 # github: https://github.com/HKZ773999/FastExecutionPod.git
 # 使用说明: 
@@ -106,14 +106,25 @@ EOF
 }
 
 
+
 # 展示选择器
 # 参数$1 title
 function choosList()
 {
 osascript  <<EOF
-    tell application "Xcode"
+    -- 告诉System Events应用程序执行后续的命令
+    tell application "System Events"
+
+        -- 激活System Events应用程序，确保选择列表窗口位于前台，并且可以被选中
+        activate
+
+        -- 要显示在选择列表中的选项
         set podOptions to {"输入Pod指令", "pod install", "pod update", "pod update --no-repo-update"}
+
+        -- 选择列表中默认选中的选项
         set defaultItems to {"pod update --no-repo-update"}
+
+        -- 使用上述定义的变量和参数来显示选择列表窗口
         choose from list podOptions with title "$1" with prompt "选择要执行的 Pod 操作: " OK button name "执行" cancel button name "取消" default items defaultItems
     end tell
 EOF
