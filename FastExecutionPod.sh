@@ -234,8 +234,18 @@ if [ -n "$path" ]; then
     # 如果存在弹出 选择器 选择要执行的操作
     pod_command=$(choosList $name)
 
+    # 如果选择了 取消 操作
     if [ $pod_command == 'false' ]; then
-        # 如果选择了 取消 操作 直接终止脚本
+
+        # 先将 Xcode 的进程设置为前台来选中其窗口。(体验更好)
+        # 注意，在执行此代码之前，虽然需要确保已经打开了Xcode。否则，此代码将无法正常工作。
+        # 但是 这个脚本选是由 Xcode 触发的, 如果不是手动特意退出,此时 Xcode 必然是打开的
+        # 如果手动退出了 Xcode 只是 下面 AppleScript 执行 错误, 脚本还是正常退出
+        osascript -e 'tell application "System Events" 
+            set frontmost of process "Xcode" to true 
+        end tell'
+
+        # 然后直接终止脚本
         exit 
     fi
 
