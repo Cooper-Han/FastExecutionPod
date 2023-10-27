@@ -137,12 +137,20 @@ EOF
 # 参数$2 执行指令
 function runInITerm()
 {
+# 注意:
+# 原本在终端只需执行: "cd $1/..; $2"
+# 但是如果 $1 的 path 中如果有文件夹命名中有空格 在终端执行指令就会报 "cd: string not in pwd: XXX/XXX" 的错误 导致无法成功进入文件夹
+# 这种情况在 shell 中只需在带空格的文件夹名的空格前面加上 \ 转义即可, 例: /Users/test 2 => /Users/test\ 2
+# 但是 此时 shell 是通过 AppleScript 执行的, 如果有 / 会造成 AppleScript 的语法错误,无法执行.
+# 在 AppleScript 中添加额外的转义字符，以正确处理具有转义字符的路径和命令.
+# 通过修改为: "cd \"$1/..\"; $2" 
+# 在此使用了双引号来包裹整个路径。这样可以确保路径中的空格和其他特殊字符被正确解析.
 osascript <<EOF
     tell application "iTerm"
         if not (exists window 1) then reopen
         set myWindow to current window
         tell current session of myWindow
-            write text "cd $1/..; $2"
+            write text "cd \"$1/..\"; $2"
         end tell
         activate
     end tell
@@ -156,11 +164,19 @@ EOF
 # 参数$2 执行指令
 function runInTerminal()
 {
+# 注意:
+# 原本在终端只需执行: "cd $1/..; $2"
+# 但是如果 $1 的 path 中如果有文件夹命名中有空格 在终端执行指令就会报 "cd: string not in pwd: XXX/XXX" 的错误 导致无法成功进入文件夹
+# 这种情况在 shell 中只需在带空格的文件夹名的空格前面加上 \ 转义即可, 例: /Users/test 2 => /Users/test\ 2
+# 但是 此时 shell 是通过 AppleScript 执行的, 如果有 / 会造成 AppleScript 的语法错误,无法执行.
+# 在 AppleScript 中添加额外的转义字符，以正确处理具有转义字符的路径和命令.
+# 通过修改为: "cd \"$1/..\"; $2" 
+# 在此使用了双引号来包裹整个路径。这样可以确保路径中的空格和其他特殊字符被正确解析.
 osascript <<EOF 
     tell application "Terminal"
         if not (exists window 1) then reopen
         activate
-        do script "cd $1/..; $2" in window 1
+        do script "cd \"$1/..\"; $2" in window 1
     end tell
 EOF
 }
