@@ -3,7 +3,7 @@
 # 作者: Cooper
 # 版本: 1.1
 # 创建日期: 2023-02-28
-# github: https://github.com/HKZ773999/FastExecutionPod.git
+# github: https://github.com/Cooper-Han/FastExecutionPod.git
 # 使用说明: 
 : "
 此脚本通过在 Xcode 配置 快捷键, 快速 执行 pod 等相关操作
