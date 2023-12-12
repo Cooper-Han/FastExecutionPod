@@ -147,13 +147,33 @@ function runInITerm()
 # 在此使用了双引号来包裹整个路径。这样可以确保路径中的空格和其他特殊字符被正确解析.
 osascript <<EOF
     tell application "iTerm"
-        if not (exists window 1) then reopen
-        set myWindow to current window
-        tell current session of myWindow
-            write text "cd \"$1/..\"; $2"
-        end tell
+        -- 向iTerm应用程序发送指令
+
+        if not (exists window 1) then
+            -- 检查iTerm的第一个窗口是否存在
+            create window with default profile
+            -- 如果不存在，则创建一个新的窗口，使用默认的配置文件
+        else if miniaturized of window 1 then
+            -- 检查第一个窗口是否被最小化
+            -- 如果是最小化 恢复最小化的窗口
+            set miniaturized of window 1 to false
+            -- 将窗口从最小化状态恢复
+        end if
+
         activate
+        -- 激活（使其成为前台应用程序）iTerm
+
+        set myWindow to current window
+        -- 将当前窗口（现在是活跃窗口）赋值给变量myWindow
+
+        tell current session of myWindow
+            -- 向myWindow的当前会话发送指令
+            write text "cd \"$1/..\"; $2"
+            -- 在iTerm的当前会话中执行文本命令。
+            -- 这里的命令是切换目录到脚本参数$1的上一级目录，然后执行$2参数中的命令
+        end tell
     end tell
+    -- 结束向iTerm发送指令的代码块
 EOF
 }
 
@@ -174,10 +194,28 @@ function runInTerminal()
 # 在此使用了双引号来包裹整个路径。这样可以确保路径中的空格和其他特殊字符被正确解析.
 osascript <<EOF 
     tell application "Terminal"
-        if not (exists window 1) then reopen
+        -- 向Terminal应用程序发送指令
+
+        if not (exists window 1) then
+            -- 检查Terminal的第一个窗口是否存在
+            reopen
+            -- 如果不存在，则重新打开一个新的Terminal窗口
+
+        else if not (visible of window 1) then
+            -- 如果存在窗口但窗口不可见（可能被最小化或隐藏）
+            reopen
+            -- 重新打开一个新的Terminal窗口
+        end if           
+
         activate
+        -- 激活（使其成为前台应用程序）Terminal
+
         do script "cd \"$1/..\"; $2" in window 1
+        -- 在Terminal的第一个窗口中执行脚本命令。
+        -- 这里的脚本包括两部分：首先是'cd \"$1/..\"'，它将Terminal的当前目录更改到脚本参数$1的上级目录；
+        -- 然后是'$2'，它是另一个将要在Terminal中执行的脚本命令。
     end tell
+    -- 结束向Terminal发送指令的代码块。
 EOF
 }
 
