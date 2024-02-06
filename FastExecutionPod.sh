@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # 作者: Cooper
-# 版本: 1.1
+# 版本: 1.2
 # 创建日期: 2023-02-28
 # github: https://github.com/Cooper-Han/FastExecutionPod.git
 # 使用说明: 
@@ -162,6 +162,9 @@ osascript <<EOF
 
         activate
         -- 激活（使其成为前台应用程序）iTerm
+
+        delay 1
+        -- 添加延迟确保窗口已打开并准备好
 
         set myWindow to current window
         -- 将当前窗口（现在是活跃窗口）赋值给变量myWindow
