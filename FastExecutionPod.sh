@@ -193,27 +193,23 @@ function runInTerminal()
 # 通过修改为: "cd \"$1/..\"; $2" 
 # 在此使用了双引号来包裹整个路径。这样可以确保路径中的空格和其他特殊字符被正确解析.
 osascript <<EOF 
+    -- 向Terminal应用程序发送指令
     tell application "Terminal"
-        -- 向Terminal应用程序发送指令
+          
+        -- 重新打开 Terminal 窗口
+        reopen         
 
-        if not (exists window 1) then
-            -- 检查Terminal的第一个窗口是否存在
-            reopen
-            -- 如果不存在，则重新打开一个新的Terminal窗口
-
-        else if not (visible of window 1) then
-            -- 如果存在窗口但窗口不可见（可能被最小化或隐藏）
-            reopen
-            -- 重新打开一个新的Terminal窗口
-        end if           
-
-        activate
         -- 激活（使其成为前台应用程序）Terminal
+        activate
 
-        do script "cd \"$1/..\"; $2" in window 1
+        -- 添加延迟确保窗口已打开并准备好
+        delay 1 
+
         -- 在Terminal的第一个窗口中执行脚本命令。
         -- 这里的脚本包括两部分：首先是'cd \"$1/..\"'，它将Terminal的当前目录更改到脚本参数$1的上级目录；
         -- 然后是'$2'，它是另一个将要在Terminal中执行的脚本命令。
+        do script "cd \"$1/..\"; $2" in window 1
+        
     end tell
     -- 结束向Terminal发送指令的代码块。
 EOF
