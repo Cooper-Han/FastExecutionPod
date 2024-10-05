@@ -125,7 +125,7 @@ osascript  <<EOF
         set defaultItems to {"pod update --no-repo-update"}
 
         -- 使用上述定义的变量和参数来显示选择列表窗口
-        choose from list podOptions with title "$1" with prompt "选择要执行的 Pod 操作: " OK button name "执行" cancel button name "取消" default items defaultItems
+        choose from list podOptions with title "$1" with prompt "选择要执行的 \`Pod\` 指令: " OK button name "执行" cancel button name "取消" default items defaultItems
     end tell
 EOF
 }
@@ -324,7 +324,7 @@ if [ -n "$path" ]; then
     pod_command=$(choosList $name)
 
     # 如果选择了 取消 操作
-    if [ $pod_command == 'false' ]; then
+    if [ "$pod_command" == 'false' ]; then
 
         # 先将 Xcode 的进程设置为前台来选中其窗口。(体验更好)
         # 注意，在执行此代码之前，虽然需要确保已经打开了Xcode。否则，此代码将无法正常工作。
@@ -340,7 +340,7 @@ if [ -n "$path" ]; then
 
 
     # 如果 选择的是 手动输入 操作 
-    if [ $pod_command == '输入Pod指令' ]; then
+    if [ "$pod_command" == '输入Pod指令' ]; then
 
         # 指定 icon path
         icon_path='System:Applications:Utilities:Terminal.app:Contents:Resources:Terminal.icns'
