@@ -1,7 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 # 作者: Cooper
-# 版本: 1.2
+# 版本: 2.0
 # 创建日期: 2023-02-28
 # github: https://github.com/Cooper-Han/FastExecutionPod.git
 # 使用说明: 
@@ -109,25 +109,29 @@ EOF
 
 # 展示选择器
 # 参数$1 title
+# function choosList()
+# {
+# osascript  <<EOF
+#     -- 告诉System Events应用程序执行后续的命令
+#     tell application "System Events"
+
+#         -- 激活System Events应用程序，确保选择列表窗口位于前台，并且可以被选中
+#         activate
+
+#         -- 要显示在选择列表中的选项
+#         set podOptions to {"输入Pod指令", "pod install", "pod update", "pod update --no-repo-update"}
+
+#         -- 选择列表中默认选中的选项
+#         set defaultItems to {"pod update --no-repo-update"}
+
+#         -- 使用上述定义的变量和参数来显示选择列表窗口
+#         choose from list podOptions with title "$1" with prompt "选择要执行的 \`Pod\` 指令: " OK button name "执行" cancel button name "取消" default items defaultItems
+#     end tell
+# EOF
+# }
 function choosList()
 {
-osascript  <<EOF
-    -- 告诉System Events应用程序执行后续的命令
-    tell application "System Events"
-
-        -- 激活System Events应用程序，确保选择列表窗口位于前台，并且可以被选中
-        activate
-
-        -- 要显示在选择列表中的选项
-        set podOptions to {"输入Pod指令", "pod install", "pod update", "pod update --no-repo-update"}
-
-        -- 选择列表中默认选中的选项
-        set defaultItems to {"pod update --no-repo-update"}
-
-        -- 使用上述定义的变量和参数来显示选择列表窗口
-        choose from list podOptions with title "$1" with prompt "选择要执行的 \`Pod\` 指令: " OK button name "执行" cancel button name "取消" default items defaultItems
-    end tell
-EOF
+    "$(dirname "$0")/PodCommandPickerTool" "$1"
 }
 
 
@@ -137,15 +141,15 @@ EOF
 # 参数$2 执行指令
 function runInITerm()
 {
-# 注意:
-# 原本在终端只需执行: "cd $1/..; $2"
-# 但是如果 $1 的 path 中如果有文件夹命名中有空格 在终端执行指令就会报 "cd: string not in pwd: XXX/XXX" 的错误 导致无法成功进入文件夹
-# 这种情况在 shell 中只需在带空格的文件夹名的空格前面加上 \ 转义即可, 例: /Users/test 2 => /Users/test\ 2
-# 但是 此时 shell 是通过 AppleScript 执行的, 如果有 / 会造成 AppleScript 的语法错误,无法执行.
-# 在 AppleScript 中添加额外的转义字符，以正确处理具有转义字符的路径和命令.
-# 通过修改为: "cd \"$1/..\"; $2" 
-# 在此使用了双引号来包裹整个路径。这样可以确保路径中的空格和其他特殊字符被正确解析.
-osascript <<EOF
+    # 将路径作为独立参数传入 AppleScript，避免空格、中文和引号被二次解析。
+    project_directory=$(dirname "$1")
+
+osascript - "$project_directory" "$2" <<'EOF'
+    on run argv
+        set projectDirectory to item 1 of argv
+        set podCommand to item 2 of argv
+        set shellCommand to "cd " & quoted form of projectDirectory & "; " & podCommand
+
     tell application "iTerm"
         -- 向iTerm应用程序发送指令
 
@@ -171,12 +175,11 @@ osascript <<EOF
 
         tell current session of myWindow
             -- 向myWindow的当前会话发送指令
-            write text "cd \"$1/..\"; $2"
-            -- 在iTerm的当前会话中执行文本命令。
-            -- 这里的命令是切换目录到脚本参数$1的上一级目录，然后执行$2参数中的命令
+            write text shellCommand
         end tell
     end tell
     -- 结束向iTerm发送指令的代码块
+    end run
 EOF
 }
 
@@ -187,15 +190,15 @@ EOF
 # 参数$2 执行指令
 function runInTerminal()
 {
-# 注意:
-# 原本在终端只需执行: "cd $1/..; $2"
-# 但是如果 $1 的 path 中如果有文件夹命名中有空格 在终端执行指令就会报 "cd: string not in pwd: XXX/XXX" 的错误 导致无法成功进入文件夹
-# 这种情况在 shell 中只需在带空格的文件夹名的空格前面加上 \ 转义即可, 例: /Users/test 2 => /Users/test\ 2
-# 但是 此时 shell 是通过 AppleScript 执行的, 如果有 / 会造成 AppleScript 的语法错误,无法执行.
-# 在 AppleScript 中添加额外的转义字符，以正确处理具有转义字符的路径和命令.
-# 通过修改为: "cd \"$1/..\"; $2" 
-# 在此使用了双引号来包裹整个路径。这样可以确保路径中的空格和其他特殊字符被正确解析.
-osascript <<EOF 
+    # 将路径作为独立参数传入 AppleScript，再使用 quoted form 安全引用。
+    project_directory=$(dirname "$1")
+
+osascript - "$project_directory" "$2" <<'EOF'
+    on run argv
+        set projectDirectory to item 1 of argv
+        set podCommand to item 2 of argv
+        set shellCommand to "cd " & quoted form of projectDirectory & "; " & podCommand
+
     -- 向Terminal应用程序发送指令
     tell application "Terminal"
           
@@ -209,12 +212,11 @@ osascript <<EOF
         delay 1 
 
         -- 在Terminal的第一个窗口中执行脚本命令。
-        -- 这里的脚本包括两部分：首先是'cd \"$1/..\"'，它将Terminal的当前目录更改到脚本参数$1的上级目录；
-        -- 然后是'$2'，它是另一个将要在Terminal中执行的脚本命令。
-        do script "cd \"$1/..\"; $2" in window 1
+        do script shellCommand in window 1
         
     end tell
     -- 结束向Terminal发送指令的代码块。
+    end run
 EOF
 }
 
@@ -296,7 +298,7 @@ if [ -n "$path" ]; then
     full_name=${path##*/}
 
     # 只截取工程名 使用%号截取指定字符（.）左边的所有字符
-    name="目标:${full_name%.*}"
+    name="${full_name%.*}"
 
 
     # 如果不存在 Podfile 文件
@@ -321,7 +323,7 @@ if [ -n "$path" ]; then
 
 
     # 如果存在弹出 选择器 选择要执行的操作
-    pod_command=$(choosList $name)
+    pod_command=$(choosList "$name")
 
     # 如果选择了 取消 操作
     if [ "$pod_command" == 'false' ]; then
@@ -340,7 +342,7 @@ if [ -n "$path" ]; then
 
 
     # 如果 选择的是 手动输入 操作 
-    if [ "$pod_command" == '输入Pod指令' ]; then
+     if [ "$pod_command" == '输入 Pod 指令' ]; then
 
         # 指定 icon path
         icon_path='System:Applications:Utilities:Terminal.app:Contents:Resources:Terminal.icns'
